@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use environment variable for API URL, fallback to localhost for development
-const apiBaseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const apiBaseURL = import.meta.env.VITE_API_URL || 'https://sportshub-backend-mzth.onrender.com/api';
 
 const api = axios.create({
   baseURL: apiBaseURL

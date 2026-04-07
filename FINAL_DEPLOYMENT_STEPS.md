@@ -135,7 +135,7 @@ mongodb+srv://admin:MyPassword123@cluster0.12345.mongodb.net/sportshub?retryWrit
 1. Click **"Site settings"** → **"Build & deploy"** → **"Environment"**
 2. Add new variable:
    ```
-   VITE_API_URL = https://sportshub-backend.onrender.com/api
+   VITE_API_URL = https://sportshub-backend-mzth.onrender.com/api
    ```
 3. Trigger redeploy
 
