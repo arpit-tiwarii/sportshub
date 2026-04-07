@@ -1,0 +1,218 @@
+import { useState } from 'react';
+import { FiX, FiUploadCloud, FiAlertCircle } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
+
+const UploadModal = ({ isOpen, paymentId, onClose, onUpload, loading = false }) => {
+  const [file, setFile] = useState(null);
+  const [transactionId, setTransactionId] = useState('');
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.type.startsWith('image/')) {
+        setFile(droppedFile);
+      } else {
+        toast.error('Please upload an image file');
+      }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      if (selectedFile.type.startsWith('image/')) {
+        setFile(selectedFile);
+      } else {
+        toast.error('Please select an image file (JPG, PNG, etc.)');
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!file) {
+      toast.warning('Please select an image file');
+      return;
+    }
+
+    await onUpload(paymentId, file, transactionId);
+    
+    // Reset form
+    setFile(null);
+    setTransactionId('');
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 mx-4"
+          >
+            <div className="glass-panel p-6 rounded-xl border border-primary/20 shadow-2xl">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Upload Payment Proof</h2>
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-dark-700"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* File Upload Area */}
+                <div
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  className={`
+                    relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
+                    transition-all duration-300
+                    ${
+                      dragActive
+                        ? 'border-primary bg-primary/10 scale-105'
+                        : 'border-dark-600 bg-dark-800/50 hover:border-primary/50'
+                    }
+                  `}
+                >
+                  <input
+                    type="file"
+                    id="file-upload"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={loading}
+                  />
+
+                  <div className="space-y-3">
+                    <div className="flex justify-center">
+                      <div className="bg-primary/20 p-4 rounded-full">
+                        <FiUploadCloud className="w-8 h-8 text-primary" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">
+                        {file ? file.name : 'Choose or drag file here'}
+                      </p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        {file ? `${(file.size / 1024).toFixed(2)} KB` : 'JPG, PNG up to 5MB'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* File Preview */}
+                {file && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="rounded-lg overflow-hidden bg-dark-800 p-2"
+                  >
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="Preview"
+                      className="w-full h-32 object-cover rounded"
+                    />
+                  </motion.div>
+                )}
+
+                {/* Transaction ID Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Transaction ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    placeholder="e.g., TXN123456789"
+                    className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                    disabled={loading}
+                  />
+                  <p className="text-gray-500 text-xs mt-1">
+                    Helps us track your payment faster
+                  </p>
+                </div>
+
+                {/* Info */}
+                <div className="flex gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+                  <FiAlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-yellow-300">
+                    Upload a clear screenshot of your UPI/PhonePe payment receipt showing the payment amount and transaction ID.
+                  </p>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={loading}
+                    className="flex-1 px-4 py-2 bg-dark-700 text-gray-300 rounded-lg hover:bg-dark-600 transition-colors font-medium disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!file || loading}
+                    className="flex-1 px-4 py-2 btn-primary rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <FiUploadCloud className="w-4 h-4" />
+                        Upload Proof
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default UploadModal;
