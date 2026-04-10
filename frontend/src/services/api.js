@@ -1,10 +1,7 @@
 import axios from 'axios';
 const node_type="production";
 // Use environment variable for API URL, fallback to localhost for development
-<<<<<<< HEAD
-const apiBaseURL ='https://sportshub-backend-mzth.onrender.com/api';
-=======
->>>>>>> b5168b8 (UI redesign with dark fitness theme, added payment pages, new components, and layout fixes)
+
 
 //||import.meta.env.VITE_API_URL || 'https://sportshub-backend-mzth.onrender.com/api';
 
