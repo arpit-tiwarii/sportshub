@@ -28,28 +28,35 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (user && (await user.matchPassword(password))) {
-      // Check approval for athletes
-      if (user.role === 'athlete') {
-        if (user.status === 'pending') {
-          return res.status(403).json({ message: 'Account is pending admin approval' });
-        }
-        if (user.status === 'rejected') {
-          return res.status(403).json({ message: 'Account has been rejected' });
-        }
-      }
-
-      res.status(200).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+    // User doesn't exist
+    if (!user) {
+      return res.status(401).json({ message: 'Email not found. Please check and try again.' });
     }
+
+    // Check password
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Wrong password. Please try again.' });
+    }
+
+    // Check approval for athletes
+    if (user.role === 'athlete') {
+      if (user.status === 'pending') {
+        return res.status(403).json({ message: 'Account is pending admin approval. Please wait for approval.' });
+      }
+      if (user.status === 'rejected') {
+        return res.status(403).json({ message: 'Your account has been rejected. Please contact admin.' });
+      }
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      token: generateToken(user._id),
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

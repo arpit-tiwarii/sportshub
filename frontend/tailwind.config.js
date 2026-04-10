@@ -7,14 +7,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#ff5722", // Energetic Orange
-        secondary: "#1d4ed8", // Deep blue
-        dark: {
-          900: "#09090b",
-          800: "#18181b",
-          700: "#27272a",
+        primary: "#E6FF00", // Neon Yellow - Main accent
+        accent: {
+          red: "#FF2D2D",     // Strength/Power sections
+          green: "#2ECC71",   // Performance/Endurance sections
+          yellow: "#E6FF00"   // Primary accent
         },
-        light: "#fafafa"
+        dark: {
+          900: "#0B0B0B",     // Main background
+          800: "#1A1A1A",     // Section/card background
+          700: "#2A2A2A",     // Borders
+        },
+        secondary: "#1d4ed8", // Deep blue (kept for compatibility)
+        light: "#FFFFFF"      // Primary text
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -48,9 +48,6 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-// Import React for Error Boundary
-import React from 'react';
 
 // Admin Protected Route Component
 const AdminRoute = ({ children }) => {

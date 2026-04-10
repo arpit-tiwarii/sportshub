@@ -107,7 +107,7 @@ const AdminPaymentPage = () => {
   const handleViewScreenshot = (screenshotUrl) => {
     setScreenshotModal({
       isOpen: true,
-      imageUrl: `http://localhost:8000${screenshotUrl}`
+      imageUrl: `https://sportshub-backend-mzth.onrender.com${screenshotUrl}`
     });
   };
 
@@ -148,12 +148,12 @@ const AdminPaymentPage = () => {
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           {[
-            { label: 'Total', value: stats.total, color: 'from-blue-600 to-blue-500' },
-            { label: 'Pending', value: stats.pending, color: 'from-yellow-600 to-yellow-500' },
-            { label: 'Approved', value: stats.approved, color: 'from-green-600 to-green-500' },
-            { label: 'Rejected', value: stats.rejected, color: 'from-red-600 to-red-500' },
-            { label: 'With Proof', value: stats.withScreenshot, color: 'from-purple-600 to-purple-500' },
-            { label: 'Review Needed', value: stats.needsReview, color: 'from-orange-600 to-orange-500' }
+            { label: 'Total', value: stats.total, color: 'from-primary to-primary/80' },
+            { label: 'Pending', value: stats.pending, color: 'from-primary to-primary/80' },
+            { label: 'Approved', value: stats.approved, color: 'from-accent-green to-green-500' },
+            { label: 'Rejected', value: stats.rejected, color: 'from-accent-red to-red-500' },
+            { label: 'With Proof', value: stats.withScreenshot, color: 'from-primary to-primary/80' },
+            { label: 'Review Needed', value: stats.needsReview, color: 'from-primary to-primary/80' }
           ].map((stat, idx) => (
             <div
               key={idx}
@@ -200,10 +200,10 @@ const AdminPaymentPage = () => {
 
         {/* Help Section */}
         {stats.needsReview > 0 && (
-          <div className="glass-panel p-6 mt-8 border border-orange-500/30 bg-orange-500/5">
+          <div className="glass-panel p-6 mt-8 border border-primary/30 bg-primary/5">
             <h3 className="text-lg font-bold text-white mb-3">⚠️ Action Required</h3>
-            <p className="text-gray-300">
-              You have <span className="font-bold text-orange-400">{stats.needsReview}</span> pending payment{stats.needsReview !== 1 ? 's' : ''} with proof that need verification. Review them above and approve or reject.
+            <p className="text-gray-400">
+              You have <span className="font-bold text-primary">{stats.needsReview}</span> pending payment{stats.needsReview !== 1 ? 's' : ''} with proof that need verification. Review them above and approve or reject.
             </p>
           </div>
         )}

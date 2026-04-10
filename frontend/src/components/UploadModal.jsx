@@ -171,9 +171,9 @@ const UploadModal = ({ isOpen, paymentId, onClose, onUpload, loading = false }) 
                 </div>
 
                 {/* Info */}
-                <div className="flex gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                  <FiAlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-yellow-300">
+                <div className="flex gap-3 bg-primary/10 border border-primary/30 rounded-lg p-3">
+                  <FiAlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-primary/90">
                     Upload a clear screenshot of your UPI/PhonePe payment receipt showing the payment amount and transaction ID.
                   </p>
                 </div>

@@ -90,7 +90,7 @@ const StudentPaymentPage = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-dark-900 via-dark-900 to-dark-800">
-      <div className="container mx-auto px-6 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 border-b border-dark-700 pb-6">
@@ -170,9 +170,9 @@ const StudentPaymentPage = () => {
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex items-start gap-2">
-                <FiAlertCircle className="text-yellow-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-yellow-300">
+              <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg flex items-start gap-2">
+                <FiAlertCircle className="text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-primary/90">
                   Make sure to upload a clear screenshot showing the transaction amount and confirmation
                 </p>
               </div>
@@ -185,7 +185,7 @@ const StudentPaymentPage = () => {
           {[
             { label: 'Total Fees', value: `₹${stats.total}`, color: 'from-blue-600 to-blue-500' },
             { label: 'Approved', value: `₹${stats.approved}`, color: 'from-green-600 to-green-500' },
-            { label: 'Pending', value: stats.pending, color: 'from-yellow-600 to-yellow-500' },
+            { label: 'Pending', value: stats.pending, color: 'from-primary to-primary/80' },
             { label: 'Rejected', value: stats.rejected, color: 'from-red-600 to-red-500' }
           ].map((stat, idx) => (
             <div

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { FiLogOut, FiUsers, FiDollarSign, FiCheckCircle, FiXCircle, FiClock, FiTrash2, FiFileText } from 'react-icons/fi';
+import { FiLogOut, FiUsers, FiDollarSign, FiCheckCircle, FiXCircle, FiClock, FiTrash2, FiFileText, FiTrendingUp, FiAlertCircle } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
+import DashboardCard from '../components/DashboardCard';
 
 const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -65,6 +66,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApproveStudent = async (id) => {
+    await updateStudentStatus(id, 'approved');
+  };
+
+  const handleRejectStudent = async (id) => {
+    await updateStudentStatus(id, 'rejected');
+  };
+
+  const handleApprovePayment = async (id) => {
+    await verifyPayment(id, 'approved');
+  };
+
+  const handleRejectPayment = async (id) => {
+    await verifyPayment(id, 'rejected');
+  };
+
   const verifyPayment = async (id, status) => {
     try {
       await api.put(`/payments/${id}/verify`, { status });
@@ -88,7 +105,7 @@ const AdminDashboard = () => {
 
   const pendingStudents = students.filter(s => s.status === 'pending');
   const approvedStudents = students.filter(s => s.status === 'approved');
-  
+
   // Defaulters: Payments that are pending or rejected
   const actionRequiredPayments = payments.filter(p => p.status === 'pending' && p.screenshot); // Need admin review
   const unpaidPayments = payments.filter(p => ['pending', 'rejected'].includes(p.status) && !p.screenshot);
@@ -97,27 +114,103 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-dark-900">
-      <div className="container mx-auto px-6">
-        
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-dark-700 pb-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/20 p-3 rounded-lg">
-              <FiUsers className="text-primary text-xl" />
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4 border-b border-dark-700 pb-8"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 bg-primary rounded-xl flex items-center justify-center text-black text-3xl font-bold shadow-lg shadow-primary/50">
+              <FiUsers />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-              <p className="text-gray-400 text-sm">Manage students and payments</p>
+              <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-gray-400 text-lg">ICAAA Management Center</p>
             </div>
           </div>
-          
-          <button 
+
+          <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-red-400 hover:bg-red-400/10 px-4 py-2 rounded-lg transition-colors border border-transparent hover:border-red-400/20"
           >
             <FiLogOut /> Logout
           </button>
-        </div>
+        </motion.div>
+
+        {/* ==================== STATISTICS SECTION ==================== */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+            }
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+        >
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+            }}
+          >
+            <DashboardCard
+              title="Total Students"
+              value={students.length}
+              subtitle={`${approvedStudents.length} approved`}
+              icon={FiUsers}
+              gradient="from-primary to-accent-green"
+            />
+          </motion.div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+            }}
+          >
+            <DashboardCard
+              title="Pending Approvals"
+              value={pendingStudents.length}
+              subtitle="Awaiting action"
+              icon={FiAlertCircle}
+              gradient="from-primary to-accent-red"
+            />
+          </motion.div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+            }}
+          >
+            <DashboardCard
+              title="Payment Review"
+              value={actionRequiredPayments.length}
+              subtitle="Pending verification"
+              icon={FiDollarSign}
+              gradient="from-green-400 to-emerald-500"
+            />
+          </motion.div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+            }}
+          >
+            <DashboardCard
+              title="Unpaid Fees"
+              value={unpaidPayments.length}
+              subtitle="Defaulters list"
+              icon={FiClock}
+              gradient="from-red-400 to-red-500"
+            />
+          </motion.div>
+        </motion.div>
 
         {/* Tabs */}
         <div className="flex overflow-x-auto gap-4 mb-6 border-b border-dark-700 pb-2">
@@ -138,185 +231,357 @@ const AdminDashboard = () => {
           </button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-10 text-gray-400">Loading data...</div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              
-              {/* Tab: Pending Approvals */}
-              {activeTab === 'pending' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pendingStudents.length === 0 ? (
-                    <div className="col-span-full text-center py-10 text-gray-400 glass-panel">No pending approvals. All caught up!</div>
-                  ) : pendingStudents.map(student => (
-                    <div key={student._id} className="card flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-4">
-                          <h3 className="text-lg font-bold text-white">{student.name}</h3>
-                          <span className="text-xs font-medium px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded border border-yellow-500/20">Pending</span>
-                        </div>
-                        <div className="space-y-2 text-sm text-gray-400">
-                          <p><span className="text-gray-500">Email:</span> {student.email}</p>
-                          <p><span className="text-gray-500">Sport:</span> {student.sport}</p>
-                          <p><span className="text-gray-500">Age:</span> {student.age}</p>
-                          <p><span className="text-gray-500">Contact:</span> {student.contact}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-3 mt-6 pt-4 border-t border-dark-700">
-                        <button onClick={() => updateStudentStatus(student._id, 'approved')} className="flex-1 btn-primary py-2 text-sm flex items-center justify-center gap-2">
-                          <FiCheckCircle /> Approve
-                        </button>
-                        <button onClick={() => updateStudentStatus(student._id, 'rejected')} className="flex-1 border-2 border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition-colors py-2 rounded-full font-semibold text-sm flex items-center justify-center gap-2">
-                          <FiXCircle /> Reject
-                        </button>
-                      </div>
+        {/* Tab Content */}
+        {activeTab === 'pending' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {pendingStudents.length === 0 ? (
+              <div className="col-span-full text-center py-16 border border-dark-700 rounded-2xl bg-dark-800/30">
+                <FiCheckCircle className="text-4xl text-primary mx-auto mb-4 opacity-50" />
+                <p className="text-gray-400 text-lg">All caught up! No pending approvals.</p>
+              </div>
+            ) : pendingStudents.map((student, idx) => (
+              <motion.div
+                key={student._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 hover:border-primary/40 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-4 gap-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-primary transition-colors truncate flex-1">{student.name}</h3>
+                    <span className="px-3 py-1 bg-primary/15 text-primary text-xs rounded-full border border-primary/30 font-semibold whitespace-nowrap flex-shrink-0">Pending</span>
+                  </div>
+                  
+                  {/* Complete Student Information */}
+                  <div className="space-y-3 text-sm bg-dark-900/50 rounded-lg p-4 mb-4">
+                    {/* Personal Details */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Email</p>
+                      <p className="text-gray-300 break-all text-xs sm:text-sm">{student.email}</p>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Tab: Approved Students */}
-              {activeTab === 'students' && (
-                <div className="glass-panel overflow-x-auto">
-                  <table className="w-full text-left whitespace-nowrap">
-                    <thead className="bg-dark-800 border-b border-dark-700">
-                      <tr>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Name</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Email</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Sport</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Contact</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-dark-700">
-                      {approvedStudents.length === 0 ? (
-                        <tr><td colSpan="5" className="px-6 py-10 text-center text-gray-400">No approved students yet.</td></tr>
-                      ) : approvedStudents.map(student => (
-                        <tr key={student._id} className="hover:bg-dark-800/50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-white">{student.name}</td>
-                          <td className="px-6 py-4 text-gray-300">{student.email}</td>
-                          <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-xs font-medium border bg-primary/10 text-primary border-primary/20">{student.sport}</span></td>
-                          <td className="px-6 py-4 text-gray-300">{student.contact}</td>
-                          <td className="px-6 py-4 text-right">
-                            <button onClick={() => deleteStudent(student._id)} className="text-red-400 hover:text-red-300 p-2"><FiTrash2 /></button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Tab: Review Payments */}
-              {activeTab === 'payments' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {actionRequiredPayments.length === 0 ? (
-                    <div className="col-span-full text-center py-10 text-gray-400 glass-panel">No payments waiting for review.</div>
-                  ) : actionRequiredPayments.map(payment => (
-                    <div key={payment._id} className="card flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-lg font-bold text-white max-w-[200px] truncate">{payment.studentId?.name || 'Unknown User'}</h3>
-                          <span className="text-sm font-bold text-primary">₹{payment.amount}</span>
-                        </div>
-                        <p className="text-sm text-gray-400 mb-4">{payment.month} {payment.year}</p>
-                        
-                        {payment.screenshot && (
-                          <a href={`http://localhost:8000${payment.screenshot}`} target="_blank" rel="noreferrer" className="block w-full h-32 mb-4 bg-dark-900 rounded border border-dark-700 overflow-hidden relative group">
-                            <img src={`http://localhost:8000${payment.screenshot}`} alt="Payment Proof" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <span className="text-white text-sm font-medium flex items-center gap-2"><FiFileText /> View Full Image</span>
-                            </div>
-                          </a>
-                        )}
-                      </div>
-                      <div className="flex gap-3 mt-2">
-                        <button onClick={() => verifyPayment(payment._id, 'approved')} className="flex-1 border-2 border-green-500/50 text-green-400 hover:bg-green-500 hover:text-white transition-colors py-2 rounded font-semibold text-sm">Approve</button>
-                        <button onClick={() => verifyPayment(payment._id, 'rejected')} className="flex-1 border-2 border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition-colors py-2 rounded font-semibold text-sm">Reject</button>
-                      </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Contact</p>
+                      <p className="text-white font-medium">{student.contact || 'N/A'}</p>
                     </div>
-                  ))}
-                </div>
-              )}
 
-              {/* Tab: Defaulters / Unpaid */}
-              {activeTab === 'defaulters' && (
-                <div className="glass-panel overflow-x-auto">
-                  <table className="w-full text-left whitespace-nowrap">
-                    <thead className="bg-dark-800 border-b border-dark-700">
-                      <tr>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Student Name</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Month/Year</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Amount</th>
-                        <th className="px-6 py-4 text-sm font-semibold text-gray-300">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-dark-700">
-                      {unpaidPayments.length === 0 ? (
-                        <tr><td colSpan="4" className="px-6 py-10 text-center text-gray-400">No unpaid fees.</td></tr>
-                      ) : unpaidPayments.map(payment => (
-                        <tr key={payment._id} className="hover:bg-dark-800/50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-white">{payment.athleteId?.name || 'Unknown'}</td>
-                          <td className="px-6 py-4 text-gray-300">{payment.month} {payment.year}</td>
-                          <td className="px-6 py-4 text-gray-300 font-medium">₹{payment.amount}</td>
-                          <td className="px-6 py-4">
-                            <span className="px-3 py-1 rounded-full text-xs font-medium border bg-red-500/10 text-red-400 border-red-500/20 flex items-center gap-2 inline-flex">
-                              <FiClock /> {payment.status === 'rejected' ? 'Rejected' : 'Unpaid'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                    {/* Athletic Information */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Sport</p>
+                      <p className="text-primary font-bold">{student.sport || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Age</p>
+                      <p className="text-white font-medium">{student.age || 'N/A'} years</p>
+                    </div>
 
-              {/* Tab: Generate Fees */}
-              {activeTab === 'generate' && (
-                <div className="max-w-md mx-auto">
-                  <div className="card">
-                    <h2 className="text-xl font-bold text-white mb-4">Generate Monthly Fee</h2>
-                    <p className="text-gray-400 text-sm mb-6">This will create a new payment record for all currently approved students for the specified month.</p>
-                    
-                    <form onSubmit={generatePayments} className="space-y-4">
-                      <div>
-                        <label className="block text-gray-300 text-sm font-medium mb-1">Month</label>
-                        <select 
-                          value={generateForm.month} 
-                          onChange={e => setGenerateForm({...generateForm, month: e.target.value})}
-                          className="w-full bg-dark-900 border border-dark-700 focus:border-primary outline-none text-white rounded-lg px-4 py-2"
-                        >
-                          {months.map(m => <option key={m} value={m}>{m}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-gray-300 text-sm font-medium mb-1">Year</label>
-                        <input 
-                          type="number" 
-                          value={generateForm.year} 
-                          onChange={e => setGenerateForm({...generateForm, year: e.target.value})}
-                          className="w-full bg-dark-900 border border-dark-700 focus:border-primary outline-none text-white rounded-lg px-4 py-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-gray-300 text-sm font-medium mb-1">Amount (₹)</label>
-                        <input 
-                          type="number" 
-                          value={generateForm.amount} 
-                          onChange={e => setGenerateForm({...generateForm, amount: e.target.value})}
-                          className="w-full bg-dark-900 border border-dark-700 focus:border-primary outline-none text-white rounded-lg px-4 py-2"
-                        />
-                      </div>
-                      <button type="submit" className="w-full btn-primary py-3 mt-4">Generate Records</button>
-                    </form>
+                    {/* Additional Details */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">School Name</p>
+                      <p className="text-gray-300 text-xs sm:text-sm">{student.schoolName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Aadhar Number</p>
+                      <p className="text-gray-300 font-mono text-xs sm:text-sm">{student.aadhar ? student.aadhar.slice(-4).padStart(student.aadhar.length, '*') : 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
-              )}
-
-            </motion.div>
-          </AnimatePresence>
+                <div className="flex gap-2 mt-6 pt-4 border-t border-dark-700">
+                  <button
+                    onClick={() => handleApproveStudent(student._id)}
+                    className="flex-1 btn-primary py-2 px-3 text-sm font-semibold shadow-none"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleRejectStudent(student._id)}
+                    className="flex-1 btn-secondary text-red-400 border-red-400/30 hover:bg-red-400/10 py-2 px-3 text-sm font-semibold"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         )}
+
+        {/* Approved Students Tab */}
+        {activeTab === 'students' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {approvedStudents.length === 0 ? (
+              <div className="col-span-full text-center py-16 border border-dark-700 rounded-2xl bg-dark-800/30">
+                <FiUsers className="text-4xl text-primary mx-auto mb-4 opacity-50" />
+                <p className="text-gray-400 text-lg">No approved students yet.</p>
+              </div>
+            ) : approvedStudents.map((student, idx) => (
+              <motion.div
+                key={student._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 hover:border-primary/40 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-4 gap-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-primary transition-colors truncate flex-1">{student.name}</h3>
+                    <span className="px-3 py-1 bg-green-500/15 text-green-400 text-xs rounded-full border border-green-500/30 font-semibold whitespace-nowrap flex-shrink-0 flex items-center gap-1">
+                      <FiCheckCircle size={14} /> Approved
+                    </span>
+                  </div>
+                  
+                  {/* Complete Student Information */}
+                  <div className="space-y-3 text-sm bg-dark-900/50 rounded-lg p-4">
+                    {/* Personal Details */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Email</p>
+                      <p className="text-gray-300 break-all text-xs sm:text-sm">{student.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Contact</p>
+                      <p className="text-white font-medium">{student.contact || 'N/A'}</p>
+                    </div>
+
+                    {/* Athletic Information */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Sport</p>
+                      <p className="text-primary font-bold">{student.sport || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Age</p>
+                      <p className="text-white font-medium">{student.age || 'N/A'} years</p>
+                    </div>
+
+                    {/* Additional Details */}
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">School Name</p>
+                      <p className="text-gray-300 text-xs sm:text-sm">{student.schoolName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Aadhar Number</p>
+                      <p className="text-gray-300 font-mono text-xs sm:text-sm">{student.aadhar ? student.aadhar.slice(-4).padStart(student.aadhar.length, '*') : 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-dark-700">
+                  <button
+                    onClick={() => deleteStudent(student._id)}
+                    className="w-full text-red-400 border border-red-400/30 hover:bg-red-400/10 py-2 px-3 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <FiTrash2 size={16} /> Delete Student
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Payments Tab */}
+        {activeTab === 'payments' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {actionRequiredPayments.length === 0 ? (
+              <div className="col-span-full text-center py-16 border border-dark-700 rounded-2xl bg-dark-800/30">
+                <FiCheckCircle className="text-4xl text-green-400 mx-auto mb-4 opacity-50" />
+                <p className="text-gray-400 text-lg">No payments waiting for review.</p>
+              </div>
+            ) : actionRequiredPayments.map((payment, idx) => (
+              <motion.div
+                key={payment._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 hover:border-primary/40 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  {/* Student Info Header */}
+                  <div className="flex justify-between items-start mb-4 gap-2">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
+                        {payment.studentId?.name || 'Unknown'}
+                      </h3>
+                      <p className="text-gray-400 text-xs">{payment.month} {payment.year}</p>
+                    </div>
+                    <span className="text-xl font-bold text-primary whitespace-nowrap">₹{payment.amount}</span>
+                  </div>
+
+                  {/* Student Details Card */}
+                  <div className="space-y-2 text-sm bg-dark-900/50 rounded-lg p-4 mb-4">
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Email</p>
+                      <p className="text-gray-300 break-all text-xs">{payment.studentId?.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Contact</p>
+                      <p className="text-white font-medium text-xs">{payment.studentId?.contact || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Sport</p>
+                      <p className="text-primary font-bold text-xs">{payment.studentId?.sport || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Payment Screenshot */}
+                  {payment.screenshot && (
+                    <a
+                      href={`https://sportshub-backend-mzth.onrender.com${payment.screenshot}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block w-full h-40 mb-4 bg-dark-900 rounded-lg border border-dark-700 overflow-hidden relative group/img hover:border-primary/50 transition-colors"
+                    >
+                      <img
+                        src={`https://sportshub-backend-mzth.onrender.com${payment.screenshot}`}
+                        alt="Payment proof"
+                        className="w-full h-full object-cover"
+                      />
+                    </a>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-4 border-t border-dark-700">
+                  <button
+                    onClick={() => handleApprovePayment(payment._id)}
+                    className="flex-1 btn-primary py-2 px-3 text-sm font-semibold shadow-none"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleRejectPayment(payment._id)}
+                    className="flex-1 btn-secondary text-red-400 border-red-400/30 hover:bg-red-400/10 py-2 px-3 text-sm font-semibold"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Defaulters Tab */}
+        {activeTab === 'defaulters' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {unpaidPayments.length === 0 ? (
+              <div className="col-span-full text-center py-16 border border-dark-700 rounded-2xl bg-dark-800/30">
+                <FiCheckCircle className="text-4xl text-green-400 mx-auto mb-4 opacity-50" />
+                <p className="text-gray-400 text-lg">All fees are collected! 🎉</p>
+              </div>
+            ) : unpaidPayments.map((payment, idx) => (
+              <motion.div
+                key={payment._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-gradient-to-br from-dark-800 to-dark-900 border border-red-500/30 hover:border-red-400/50 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300 group"
+              >
+                {/* Payment Header */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-start mb-2 gap-2">
+                    <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors flex-1">
+                      {payment.athleteId?.name || 'Unknown'}
+                    </h3>
+                    <span className="text-xl font-bold text-red-400 whitespace-nowrap">₹{payment.amount}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">{payment.month} {payment.year}</p>
+                </div>
+
+                {/* Student Details Card */}
+                <div className="space-y-2 text-sm bg-dark-900/50 rounded-lg p-4 mb-4">
+                  <div>
+                    <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Email</p>
+                    <p className="text-gray-300 break-all text-xs">{payment.athleteId?.email || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Contact</p>
+                    <p className="text-white font-medium text-xs">{payment.athleteId?.contact || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Sport</p>
+                    <p className="text-primary font-bold text-xs">{payment.athleteId?.sport || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 font-semibold text-xs uppercase mb-1">Age</p>
+                    <p className="text-white font-medium text-xs">{payment.athleteId?.age || 'N/A'} years</p>
+                  </div>
+                </div>
+
+                {/* Status Badge */}
+                <div className="pt-4 border-t border-dark-700">
+                  <span className="px-3 py-1 rounded-lg text-xs font-bold border bg-red-500/15 text-red-400 border-red-500/30 inline-flex items-center gap-1 whitespace-nowrap">
+                    <FiAlertCircle size={14} /> {payment.status === 'rejected' ? 'Rejected' : 'Unpaid'}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Generate Fees Tab */}
+        {activeTab === 'generate' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-2xl mx-auto"
+          >
+            <div className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 rounded-2xl p-8 shadow-xl">
+              <h2 className="text-3xl font-bold text-white mb-3">Generate Monthly Fee</h2>
+              <p className="text-gray-400 mb-8">This will create a new payment record for all currently approved students for the specified month.</p>
+
+              <form onSubmit={generatePayments} className="space-y-6">
+                <div>
+                  <label className="block text-white font-semibold mb-3">Month</label>
+                  <select
+                    value={generateForm.month}
+                    onChange={e => setGenerateForm({ ...generateForm, month: e.target.value })}
+                    className="w-full bg-dark-900 border border-dark-700 hover:border-primary/50 focus:border-primary outline-none text-white rounded-lg px-4 py-3 transition-colors"
+                  >
+                    {months.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-white font-semibold mb-3">Year</label>
+                    <input
+                      type="number"
+                      value={generateForm.year}
+                      onChange={e => setGenerateForm({ ...generateForm, year: e.target.value })}
+                      className="w-full bg-dark-900 border border-dark-700 hover:border-primary/50 focus:border-primary outline-none text-white rounded-lg px-4 py-3 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white font-semibold mb-3">Amount (₹)</label>
+                    <input
+                      type="number"
+                      value={generateForm.amount}
+                      onChange={e => setGenerateForm({ ...generateForm, amount: e.target.value })}
+                      className="w-full bg-dark-900 border border-dark-700 hover:border-primary/50 focus:border-primary outline-none text-white rounded-lg px-4 py-3 transition-colors"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-primary hover:brightness-110 text-black font-bold py-3 rounded-lg transition-all shadow-lg shadow-primary/50"
+                >
+                  Generate {approvedStudents.length > 0 ? `for ${approvedStudents.length} Students` : 'Payment Records'}
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+
 
       </div>
     </div>

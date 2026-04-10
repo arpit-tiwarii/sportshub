@@ -4,23 +4,23 @@ const StatusBadge = ({ status }) => {
   const statusConfig = {
     approved: {
       icon: FiCheckCircle,
-      bg: 'bg-green-500/10',
-      border: 'border-green-500/30',
-      text: 'text-green-400',
+      bg: 'bg-accent-green/10',
+      border: 'border-accent-green/30',
+      text: 'text-accent-green',
       label: 'Approved'
     },
     pending: {
       icon: FiClock,
-      bg: 'bg-yellow-500/10',
-      border: 'border-yellow-500/30',
-      text: 'text-yellow-400',
+      bg: 'bg-primary/10',
+      border: 'border-primary/30',
+      text: 'text-primary',
       label: 'Pending'
     },
     rejected: {
       icon: FiXCircle,
-      bg: 'bg-red-500/10',
-      border: 'border-red-500/30',
-      text: 'text-red-400',
+      bg: 'bg-accent-red/10',
+      border: 'border-accent-red/30',
+      text: 'text-accent-red',
       label: 'Rejected'
     }
   };

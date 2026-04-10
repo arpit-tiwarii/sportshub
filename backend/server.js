@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 const corsOptions = {
-  origin: 'https://statuesque-tarsier-540efd.netlify.app/',
+  origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : 'http://localhost:5173',
   credentials: true,
   optionsSuccessStatus: 200
 };

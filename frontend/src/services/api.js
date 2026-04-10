@@ -1,8 +1,14 @@
 import axios from 'axios';
-
+const node_type="production";
 // Use environment variable for API URL, fallback to localhost for development
+<<<<<<< HEAD
 const apiBaseURL ='https://sportshub-backend-mzth.onrender.com/api';
+=======
+>>>>>>> b5168b8 (UI redesign with dark fitness theme, added payment pages, new components, and layout fixes)
 
+//||import.meta.env.VITE_API_URL || 'https://sportshub-backend-mzth.onrender.com/api';
+
+const apiBaseURL = (node_type==='production')?'https://sportshub-backend-mzth.onrender.com/api':"http://localhost:8000/api";
 const api = axios.create({
   baseURL: apiBaseURL
 });
@@ -27,10 +33,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('user');
-      window.location.href = '/login'; // force login
+      // Only redirect if we have a token (authenticated request failed)
+      // Don't redirect on login page when user submits wrong credentials
+      const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+      if (token) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('user');
+        window.location.href = '/login'; // force login
+      }
     }
     return Promise.reject(error);
   }
