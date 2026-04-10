@@ -264,23 +264,6 @@ const StudentDashboard = () => {
               </button>
             </div>
 
-            {/* PhonePe Payment QR Code */}
-            <div className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 hover:border-primary/40 rounded-2xl p-6 shadow-xl">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FiDollarSign className="text-primary" /> Pay via PhonePe
-              </h2>
-              <div className="flex flex-col items-center">
-                <div className="w-full max-w-xs bg-white p-4 rounded-xl mb-4 flex items-center justify-center">
-                  <img 
-                    src="/phonepe-qr-demo.svg" 
-                    alt="PhonePe QR Code"
-                    className="w-full h-auto"
-                  />
-                </div>
-                <p className="text-gray-300 text-xs text-center">Scan to pay via PhonePe</p>
-                <p className="text-gray-400 text-xs text-center mt-2">(Demo QR - Replace with your actual PhonePe QR)</p>
-              </div>
-            </div>
           </motion.div>
 
           {/* Right Content - Payment Instructions & History */}
@@ -292,16 +275,36 @@ const StudentDashboard = () => {
           >
             {/* Payment Instructions Card */}
             <div className="bg-gradient-to-br from-dark-800 to-dark-900 border border-dark-700 hover:border-primary/40 rounded-2xl p-8 shadow-xl">
+              
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <FiDollarSign className="text-primary" /> Payment Instructions
               </h2>
 
+              {/* 🔥 QR CODE AT TOP */}
+              <div className="flex flex-col items-center mb-8">
+                <div className="w-full max-w-xs bg-white p-4 rounded-xl shadow-lg">
+                  <img
+                    src="/phonepe-qr-demo.svg"
+                    alt="PhonePe QR Code"
+                    className="w-full h-auto"
+                  />
+                </div>
+
+                <p className="text-gray-300 text-sm text-center mt-3 font-medium">
+                  Scan to pay via PhonePe / UPI
+                </p>
+                <p className="text-gray-400 text-xs text-center mt-1">
+                  (Make payment before uploading proof)
+                </p>
+              </div>
+
+              {/* Steps */}
               <div className="space-y-3 mb-6">
                 {[
-                  { num: 1, title: "Make Payment", desc: "Transfer fee amount via UPI/Bank" },
-                  { num: 2, title: "Take Screenshot", desc: "Capture payment confirmation from your phone" },
-                  { num: 3, title: "Upload Proof", desc: "Click 'Upload Proof' button below" },
-                  { num: 4, title: "Get Verified", desc: "Admin reviews and approves within 24 hours" }
+                  { num: 1, title: "Scan QR & Pay", desc: "Use PhonePe / Google Pay / UPI" },
+                  { num: 2, title: "Take Screenshot", desc: "Capture payment confirmation" },
+                  { num: 3, title: "Upload Proof", desc: "Click 'Upload Proof' below" },
+                  { num: 4, title: "Get Verified", desc: "Admin approves within 24 hours" }
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4 p-3 bg-dark-900/50 rounded-lg hover:bg-dark-900 transition-colors">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-black font-bold flex-shrink-0 shadow-lg shadow-primary/50">
@@ -315,11 +318,14 @@ const StudentDashboard = () => {
                 ))}
               </div>
 
+              {/* Info Box */}
               <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex gap-3">
                 <FiAlertCircle className="text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-blue-300 font-semibold text-sm">Payment Account</p>
-                  <p className="text-blue-200 text-xs mt-1">Contact admin for UPI/Bank details</p>
+                  <p className="text-blue-300 font-semibold text-sm">Important</p>
+                  <p className="text-blue-200 text-xs mt-1">
+                    Ensure correct amount is paid and screenshot clearly shows transaction ID
+                  </p>
                 </div>
               </div>
             </div>
